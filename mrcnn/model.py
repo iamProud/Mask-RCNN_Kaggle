@@ -548,9 +548,10 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     Note: Returned arrays might be zero padded if not enough target ROIs.
     """
     # Assertions
-    asserts = [
-        tf.Assert(tf.greater(tf.shape(input=proposals)[0], 0), [proposals],
-                  name="roi_assertion"),
+    with tf.device('/CPU:0'):
+        asserts = [
+            tf.Assert(tf.greater(tf.shape(input=proposals)[0], 0), [proposals],
+                    name="roi_assertion"),
     ]
     with tf.control_dependencies(asserts):
         proposals = tf.identity(proposals)
