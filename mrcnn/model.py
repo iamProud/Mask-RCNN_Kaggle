@@ -39,15 +39,6 @@ assert LooseVersion(tf.__version__) >= LooseVersion("2.0")
 
 tf.compat.v1.disable_eager_execution()
 
-# Enable soft device placement
-tf.config.set_soft_device_placement(True)
-
-# Enable device placement logging
-tf.debugging.set_log_device_placement(True)
-
-# Setup MirroredStrategy for multi-GPU training
-strategy = tf.distribute.MirroredStrategy()
-
 
 ############################################################
 #  Custom Class
@@ -557,10 +548,9 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     Note: Returned arrays might be zero padded if not enough target ROIs.
     """
     # Assertions
-    with tf.device('/CPU:0'):
-        asserts = [
-            tf.Assert(tf.greater(tf.shape(input=proposals)[0], 0), [proposals],
-                    name="roi_assertion"),
+    asserts = [
+        tf.Assert(tf.greater(tf.shape(input=proposals)[0], 0), [proposals],
+                name="roi_assertion"),
     ]
     with tf.control_dependencies(asserts):
         proposals = tf.identity(proposals)
