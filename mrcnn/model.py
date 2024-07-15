@@ -39,6 +39,15 @@ assert LooseVersion(tf.__version__) >= LooseVersion("2.0")
 
 tf.compat.v1.disable_eager_execution()
 
+# Enable soft device placement
+tf.config.set_soft_device_placement(True)
+
+# Enable device placement logging
+tf.debugging.set_log_device_placement(True)
+
+# Setup MirroredStrategy for multi-GPU training
+strategy = tf.distribute.MirroredStrategy()
+
 
 ############################################################
 #  Custom Class
