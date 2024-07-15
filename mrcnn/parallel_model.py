@@ -18,6 +18,18 @@ import tensorflow.keras.backend as K
 import tensorflow.keras.layers as KL
 import tensorflow.keras.models as KM
 
+def build_parallel_model(keras_model, gpu_count):
+    """Builds a parallel model using MirroredStrategy if available."""
+    strategy = tf.distribute.MirroredStrategy()
+    
+    with strategy.scope():
+        # Build the model within the strategy scope
+        parallel_model = KM.Model(inputs=keras_model.inputs, outputs=keras_model.outputs)
+        parallel_model.compile(optimizer=keras_model.optimizer,
+                               loss=keras_model.loss,
+                               metrics=keras_model.metrics)
+    
+    return parallel_model
 
 class ParallelModel(KM.Model):
     """Subclasses the standard Keras Model and adds multi-GPU support.

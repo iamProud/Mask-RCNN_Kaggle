@@ -25,7 +25,7 @@ import tensorflow.keras.models as KM
 
 from mrcnn import utils
 import sys
-from mrcnn.parallel_model import ParallelModel
+from mrcnn.parallel_model import ParallelModel, build_parallel_model
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
@@ -2094,7 +2094,12 @@ class MaskRCNN(object):
 
         # Add multi-GPU support.
         if config.GPU_COUNT > 1:
-            model = ParallelModel(model, config.GPU_COUNT)
+            use_mirrored_strategy = True
+
+            if use_mirrored_strategy:
+                model = build_parallel_model(model, config.GPU_COUNT)
+            else:
+                model = ParallelModel(model, config.GPU_COUNT)
 
         return model
 
