@@ -2094,7 +2094,7 @@ class MaskRCNN(object):
 
         # Add multi-GPU support.
         if config.GPU_COUNT > 1:
-            use_mirrored_strategy = True
+            use_mirrored_strategy = False
 
             if use_mirrored_strategy:
                 model = build_parallel_model(model, config.GPU_COUNT)
