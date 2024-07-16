@@ -252,9 +252,10 @@ class Dataset(object):
     See COCODataset and ShapesDataset as examples.
     """
 
-    def __init__(self, class_map=None):
+    def __init__(self, class_map=None, use_rgbd=False):
         self._image_ids = []
         self.image_info = []
+        self.use_rgbd = use_rgbd
         # Background is always the first class
         self.class_info = [{"source": "", "id": 0, "name": "BG"}]
         self.source_class_ids = {}
@@ -360,9 +361,10 @@ class Dataset(object):
         # If grayscale. Convert to RGB for consistency.
         if image.ndim != 3:
             image = skimage.color.gray2rgb(image)
-        # If has an alpha channel, remove it for consistency
-        if image.shape[-1] == 4:
+        
+        if not self.use_rgbd and image.shape[-1] == 4:
             image = image[..., :3]
+
         return image
 
     def load_mask(self, image_id):
