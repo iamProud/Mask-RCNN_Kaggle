@@ -21,13 +21,16 @@ import tensorflow.keras.models as KM
 def build_parallel_model(keras_model, gpu_count):
     """Builds a parallel model using MirroredStrategy if available."""
     strategy = tf.distribute.MirroredStrategy()
+    optimizer = tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, clipnorm=5.0)
+    loss = 'sparse_categorical_crossentropy'
+    metrics = ['accuracy']
     
     with strategy.scope():
         # Build the model within the strategy scope
         parallel_model = KM.Model(inputs=keras_model.inputs, outputs=keras_model.outputs)
-        parallel_model.compile(optimizer=keras_model.optimizer,
-                               loss=keras_model.loss,
-                               metrics=keras_model.metrics)
+        parallel_model.compile(optimizer=optimizer,
+                               loss=loss,
+                               metrics=metrics)
     
     return parallel_model
 
