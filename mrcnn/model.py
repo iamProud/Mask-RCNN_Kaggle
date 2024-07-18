@@ -39,22 +39,6 @@ assert LooseVersion(tf.__version__) >= LooseVersion("2.0")
 
 tf.compat.v1.disable_eager_execution()
 
-
-############################################################
-#  Custom Class
-############################################################
-
-class AnchorsLayer(KL.Layer):
-    def __init__(self, anchors, name="anchors", **kwargs):
-        super(AnchorsLayer, self).__init__(name=name, **kwargs)
-        self.anchors = tf.Variable(anchors)
-
-    def call(self, dummy):
-        return self.anchors
-
-    def get_config(self):
-        config = super(AnchorsLayer, self).get_config()
-        return config
     
 ############################################################
 #  Utility Functions
@@ -1963,6 +1947,12 @@ class MaskRCNN(object):
                 def __init__(self, x, name=None):
                     super(ConstLayer, self).__init__(name=name)
                     self.x = tf.Variable(x)
+                
+                def get_config(self):
+                    config = super(ConstLayer, self).get_config()
+                    config['x'] = self.x
+
+                    return config
 
                 def call(self, input):
                     return self.x
