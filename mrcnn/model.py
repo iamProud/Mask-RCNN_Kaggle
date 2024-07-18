@@ -2159,6 +2159,7 @@ class MaskRCNN(object):
             with open(optimizer_path, 'rb') as f:
                 weight_values = pickle.load(f)
             self.keras_model.optimizer.set_weights(weight_values)
+            print("Optimizer loaded successfully")
 
         # Update the log directory
         self.set_log_dir(filepath)
