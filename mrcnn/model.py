@@ -12,6 +12,7 @@ import os
 import datetime
 import re
 import math
+import pickle
 from collections import OrderedDict
 import multiprocessing
 import numpy as np
@@ -1948,12 +1949,6 @@ class MaskRCNN(object):
                     super(ConstLayer, self).__init__(name=name)
                     self.x = tf.Variable(x)
                 
-                def get_config(self):
-                    config = super(ConstLayer, self).get_config()
-                    config['x'] = self.x
-
-                    return config
-
                 def call(self, input):
                     return self.x
 
@@ -2122,7 +2117,7 @@ class MaskRCNN(object):
         checkpoint = os.path.join(dir_name, checkpoints[-1])
         return checkpoint
 
-    def load_weights(self, filepath, by_name=False, exclude=None):
+    def load_weights(self, filepath, by_name=False, exclude=None, optimizer_path=None):
         """Modified version of the corresponding Keras function with
         the addition of multi-GPU support and the ability to exclude
         some layers from loading.
@@ -2159,6 +2154,11 @@ class MaskRCNN(object):
                 hdf5_format.load_weights_from_hdf5_group_by_name(f, layers)
             else:
                 hdf5_format.load_weights_from_hdf5_group(f, layers)
+
+        if optimizer_path is not None:
+            with open(optimizer_path, 'rb') as f:
+                weight_values = pickle.load(f)
+            self.keras_model.optimizer.set_weights(weight_values)
 
         # Update the log directory
         self.set_log_dir(filepath)
@@ -2357,16 +2357,12 @@ class MaskRCNN(object):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        last_ckpt = os.path.join(self.log_dir, "last")
-
         # Callbacks
         callbacks = [
             keras.callbacks.TensorBoard(log_dir=self.log_dir,
                                         histogram_freq=0, write_graph=True, write_images=False),
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
-                                            verbose=0, save_weights_only=True),
-            keras.callbacks.ModelCheckpoint(last_ckpt,
-                                            verbose=0, save_weights_only=False),
+                                            verbose=0, save_weights_only=True)
         ]
 
         # Add custom callbacks to the list
@@ -2400,6 +2396,11 @@ class MaskRCNN(object):
             use_multiprocessing=False,
         )
         self.epoch = max(self.epoch, epochs)
+
+        symbolic_weights = getattr(self.keras_model.optimizer, 'weights')
+        weight_values = K.batch_get_value(symbolic_weights)
+        with open('optimizer.pkl', 'wb') as f:
+            pickle.dump(weight_values, f)
 
     def mold_inputs(self, images):
         """Takes a list of images and modifies them to the format expected
