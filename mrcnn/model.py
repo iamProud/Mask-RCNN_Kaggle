@@ -2161,8 +2161,9 @@ class MaskRCNN(object):
             self.keras_model._make_train_function()
             with open(optimizer_path, 'rb') as f:
                 weight_values = pickle.load(f)
-            
-            self.keras_model.optimizer.set_weights(weight_values)
+
+            symbolic_weights = getattr(self.keras_model.optimizer, 'weights')
+            K.batch_set_value(zip(symbolic_weights, weight_values))
             print("Optimizer loaded successfully")
 
         # Update the log directory
