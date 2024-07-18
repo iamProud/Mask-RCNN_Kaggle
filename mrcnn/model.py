@@ -2156,6 +2156,7 @@ class MaskRCNN(object):
                 hdf5_format.load_weights_from_hdf5_group(f, layers)
 
         if optimizer_path is not None:
+            self.keras_model._make_train_function()
             with open(optimizer_path, 'rb') as f:
                 weight_values = pickle.load(f)
             self.keras_model.optimizer.set_weights(weight_values)
