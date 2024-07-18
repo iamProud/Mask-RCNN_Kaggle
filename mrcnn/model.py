@@ -2357,7 +2357,7 @@ class MaskRCNN(object):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        last_ckpt = os.path.join(self.log_dir, "last.h5")
+        last_ckpt = os.path.join(self.log_dir, "last")
 
         # Callbacks
         callbacks = [
