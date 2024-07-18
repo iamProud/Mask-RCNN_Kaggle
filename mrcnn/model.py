@@ -2367,12 +2367,16 @@ class MaskRCNN(object):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
+        last_ckpt = os.path.join(self.log_dir, "last.h5")
+
         # Callbacks
         callbacks = [
             keras.callbacks.TensorBoard(log_dir=self.log_dir,
                                         histogram_freq=0, write_graph=True, write_images=False),
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=0, save_weights_only=True),
+            keras.callbacks.ModelCheckpoint(last_ckpt,
+                                            verbose=0, save_weights_only=False),
         ]
 
         # Add custom callbacks to the list
