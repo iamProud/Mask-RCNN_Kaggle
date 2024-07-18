@@ -2183,10 +2183,10 @@ class MaskRCNN(object):
         metrics. Then calls the Keras compile() function.
         """
         # Optimizer object
-        # optimizer = keras.optimizers.legacy.SGD(
-        #     lr=learning_rate, momentum=momentum,
-        #     clipnorm=self.config.GRADIENT_CLIP_NORM)
-        optimizer = keras.optimizers.Adam()
+        optimizer = keras.optimizers.legacy.SGD(
+            lr=learning_rate, momentum=momentum,
+            clipnorm=self.config.GRADIENT_CLIP_NORM)
+        #optimizer = keras.optimizers.Adam()
         # Add Losses
         loss_names = [
             "rpn_class_loss",  "rpn_bbox_loss",
