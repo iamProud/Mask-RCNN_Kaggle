@@ -2149,19 +2149,21 @@ class MaskRCNN(object):
             # Exclude some layers
             if exclude:
                 layers = filter(lambda l: l.name not in exclude, layers)
-
-            if by_name:
-                hdf5_format.load_weights_from_hdf5_group_by_name(f, layers)
+                if by_name:
+                    hdf5_format.load_weights_from_hdf5_group_by_name(f, layers)
+                else:
+                    hdf5_format.load_weights_from_hdf5_group(f, layers)
             else:
-                hdf5_format.load_weights_from_hdf5_group(f, layers)
+                keras_model.load_weights(filepath)
+                print("keras model weights loaded from filepath")
 
         if optimizer_path is not None:
             self.keras_model._make_train_function()
             with open(optimizer_path, 'rb') as f:
                 weight_values = pickle.load(f)
-                self.keras_model.optimizer.set_weights(weight_values)
-                print("Optimizer loaded successfully")
-            print("Optimizer loading end")
+            
+            self.keras_model.optimizer.set_weights(weight_values)
+            print("Optimizer loaded successfully")
 
         # Update the log directory
         self.set_log_dir(filepath)
@@ -2405,6 +2407,8 @@ class MaskRCNN(object):
             use_multiprocessing=False,
         )
         self.epoch = max(self.epoch, epochs)
+
+        print(self.keras_model.optimizer)
 
         symbolic_weights = getattr(self.keras_model.optimizer, 'weights')
         weight_values = K.batch_get_value(symbolic_weights)
